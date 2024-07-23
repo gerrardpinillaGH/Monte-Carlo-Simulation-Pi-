@@ -1,65 +1,53 @@
-#include ‹omp.h>
-#include < stdio.h›
-#include ‹iostream> 
-#include ‹windows.h
+#include <omp.h>
+#include <stdio.h>
+#include <iostream>
+#include <windows.h>
+#include <stdlib.h>
 
 #define N 100
 
-
 int main() {
-	// Number of random points to generate
-	int Points = 10000000;
+    // Number of random points to generate
+    int Points = 10000000;
 
-	// Thread ID and number of threads to be used in OpenMP parallelization
-	int tid, threads = 8;
+    // Thread ID and number of threads to be used in OpenMP parallelization
+    int tid, threads = 8;
 
-	// Counter for points inside the circle
-	double Inside = 0.0;
+    // Counter for points inside the circle
+    double nInside = 0.0;
 
-	// Variables to store random coordinates
-	double rand_a, rand_b;
+    // Variables to store random coordinates
+    double rand_a, rand_b;
 
-	// OpenMP parallel region
-#pragma omp parallel private(tid, rand_a, rand_b) reduction(+:nInside) num_threads(nthreads)
+    // OpenMP parallel region
+#pragma omp parallel private(tid, rand_a, rand_b) reduction(+:nInside) num_threads(threads)
+    {
+        // Get the thread ID
+        tid = omp_get_thread_num();
 
-	{
-		// Get the thread ID
-		tid = omp_get_ thread_num() :
+        // Calculate the start and end indices for each thread
+        int start = tid * (Points / threads);
+        int end = (tid + 1) * (Points / threads);
 
+        // Generate random points and check if they are inside the circle
+        for (int i = start; i < end; i++) {
+            rand_a = (double)(rand() % 100) / 100.0;
+            rand_b = (double)(rand() % 100) / 100.0;
 
+            // Check if the point is inside the specified circle
+            if ((rand_a - 0.5) * (rand_a - 0.5) + (rand_b - 0.5) * (rand_b - 0.5) <= 0.5 * 0.5) {
+                nInside++;
+            }
+        }
+    }
 
-		// Calculate the start and end indices for each thread
+    // Estimate PI value based on the ratio of points inside the circle to total points
+    double pi_estimate = (nInside / Points) * 4.0;
 
-		int start = tid * (Points / nthreads);
+    // Print the estimated PI value
+    printf("Estimated PI value: %f\n", pi_estimate);
 
-		int end = (tid + 1) * (nPoints / nthreads);
-
-
-
-		// Generate random points and check if they are inside the circle
-
-		for (int i = start; i ‹ end; i++) t
-
-			rand_a = (double)(rand() % 100) / 100.0;
-
-		rand_b = (double)(rand() % 100) / 100.0;
-
-
-			// Check if the point is inside the specified circle
-
-			if ((rand_a - 0.5) * (rand_a - 0.5) + (rand_b - 0.5) * (rand_b - 0.5) <= 0.5 * 0.5) 1
-
-			nInside++;
-			}
-		}
-	}
-
-	// Estimate PI value based on the ratio of points inside the circle to total points
-		double pi_estimate = (nInside / Points) * 4.0;
-	// Print the estimated PI value
-	printf("Estimated PI value: %f\n", pi_estimate);
-
-	return 0;
+    return 0;
 }
 
 
